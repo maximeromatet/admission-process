@@ -12,16 +12,13 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
   const [batchFilter, setBatchFilter] = useState(initialFilter ? initialFilter.batchFilter || '' : '');
   const [bgFilter, setBgFilter]       = useState('');
   const [genderFilter, setGenderFilter] = useState('');
-  const [deleteId, setDeleteId]       = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   const EMPTY_FORM = {
     name: '', email: '', phone: '', nationality: 'French',
     school: '', degree: '', graduationYear: new Date().getFullYear(),
     background: 'Business', gender: 'M', dob: '',
-    batchId: 'r3', isInternal: false, applicationDate: new Date().toISOString().slice(0,10),
-    assignedEvaluatorS1: '', assignedEvaluatorS2: '',
-    status: 'pending',
+    batchId: 'r3',
     notes: '', s2Notes: '', pdfUrl: '',
     docs: { degree: false, transcripts: false, cv: false, english: false, essay: false, references: false, photo: false },
   };
@@ -68,11 +65,6 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
     return candidates.filter(c => tab.statuses.includes(c.status)).length;
   }
 
-  function handleDelete(id) {
-    setAppState(prev => ({ ...prev, candidates: prev.candidates.filter(c => c.id !== id) }));
-    setDeleteId(null);
-  }
-
   function handleAddCandidate() {
     const id = 'c' + Date.now();
     let resolvedPdfUrl = '';
@@ -82,13 +74,17 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
     const newCandidate = {
       ...form,
       id,
-      isInternal: form.isInternal === true || form.isInternal === 'true',
+      status: 'app_review',
+      isInternal: false,
+      applicationDate: new Date().toISOString().slice(0, 10),
       graduationYear: parseInt(form.graduationYear),
       pdfUrl: resolvedPdfUrl,
       stage1Scores: {},
       stage2Scores: null,
+      cohort: { depositPaid: false },
       activityLog: [
         { action: 'Application submitted', time: new Date().toISOString() },
+        { action: 'Moved to Application Review', time: new Date().toISOString() },
       ],
     };
     setAppState(prev => ({ ...prev, candidates: [...prev.candidates, newCandidate] }));
@@ -188,7 +184,11 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
                       )}
                       <td>
                         <div style={{ fontWeight:600, cursor:'pointer', color:'var(--navy)' }}
-                          onClick={() => navigate('candidate-detail', { candidateId: c.id })}>
+                          onClick={() => {
+                            const decisionStatuses = ['accepted','waitlisted','rejected'];
+                            const m = decisionStatuses.includes(c.status) ? 'decision' : c.status === 'interview' ? 'interview' : 'app-review';
+                            navigate('candidate-detail', { candidateId: c.id, mode: m });
+                          }}>
                           {c.name}
                           {c.isInternal && <span style={{ marginLeft:6, fontSize:10, color:'var(--blue)', fontWeight:700 }}>INTERNAL</span>}
                         </div>
@@ -209,8 +209,12 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
                       <td><StatusBadge status={c.status} /></td>
                       <td>
                         <div style={{ display:'flex', gap:6 }}>
-                          <button className="btn btn-ghost btn-sm" onClick={() => navigate('candidate-detail', { candidateId: c.id })}>View</button>
-                          <button className="btn btn-danger btn-sm" onClick={() => setDeleteId(c.id)}>✕</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => {
+                            const decisionStatuses = ['accepted','waitlisted','rejected'];
+                            const ivStatuses = ['interview'];
+                            const m = decisionStatuses.includes(c.status) ? 'decision' : ivStatuses.includes(c.status) ? 'interview' : 'app-review';
+                            navigate('candidate-detail', { candidateId: c.id, mode: m });
+                          }}>View</button>
                         </div>
                       </td>
                     </tr>
@@ -308,28 +312,6 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
               {batches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
-          <div className="form-group">
-            <label className="form-label">Application Date</label>
-            <input {...inp} type="date" value={form.applicationDate} onChange={e => setField('applicationDate', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Initial Status</label>
-            <select {...inp} value={form.status} onChange={e => setField('status', e.target.value)}>
-              <option value="pending">Pending</option>
-              <option value="app_review">App Review</option>
-              <option value="interview">Interview</option>
-              <option value="accepted">Accepted</option>
-              <option value="waitlisted">Waitlisted</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Internal Track</label>
-            <select {...inp} value={form.isInternal} onChange={e => setField('isInternal', e.target.value === 'true')}>
-              <option value="false">No</option>
-              <option value="true">Yes (HEC / Polytechnique)</option>
-            </select>
-          </div>
         </div>
 
         {/* Section: Documents */}
@@ -370,15 +352,6 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
         </div>
       </Modal>
 
-      {/* Delete confirm */}
-      <ConfirmModal
-        open={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        onConfirm={() => handleDelete(deleteId)}
-        title="Delete Candidate"
-        message="Are you sure you want to permanently delete this candidate? This action cannot be undone."
-        danger
-      />
     </div>
   );
 };

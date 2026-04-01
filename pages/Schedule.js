@@ -8,7 +8,7 @@ window.SchedulePage = function({ navigate }) {
   const { candidates, batches, users, alumni, alumniAvail, interviews } = appState;
 
   const [activeTab, setActiveTab] = useState('agenda');
-  const [batchFilter, setBatchFilter] = useState('r3');
+  const [batchFilter, setBatchFilter] = useState('r1');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     candidateId: '', date: '', time: '09:00',
@@ -23,10 +23,10 @@ window.SchedulePage = function({ navigate }) {
     [interviews, batchFilter]
   );
 
-  // Group by date
+  // Group by date — exclude unscheduled
   const byDate = useMemo(() => {
     const map = {};
-    filteredInterviews.forEach(i => {
+    filteredInterviews.filter(i => i.date).forEach(i => {
       if (!map[i.date]) map[i.date] = [];
       map[i.date].push(i);
     });
@@ -34,7 +34,8 @@ window.SchedulePage = function({ navigate }) {
     return map;
   }, [filteredInterviews]);
 
-  const allDates = [...new Set(filteredInterviews.map(i => i.date))].sort();
+  const allDates = [...new Set(filteredInterviews.filter(i => i.date).map(i => i.date))].sort();
+  const toSchedule = filteredInterviews.filter(i => !i.date || i.status === 'To Schedule');
 
   const getCand = id => candidates.find(c => c.id === id);
   const getUser = id => users.find(u => u.id === id);
@@ -50,16 +51,27 @@ window.SchedulePage = function({ navigate }) {
   }
 
   function saveInterview() {
-    const id = 'i' + Date.now();
-    const newIv = { ...form, id, batchId: batchFilter, status: 'Scheduled' };
-    setAppState(prev => ({ ...prev, interviews: [...prev.interviews, newIv] }));
     const cand = getCand(form.candidateId);
+    // Update existing placeholder if one exists, else add new
+    const existing = interviews.find(i => i.candidateId === form.candidateId && i.status === 'To Schedule');
+    if (existing) {
+      setAppState(prev => ({
+        ...prev,
+        interviews: prev.interviews.map(i => i.id === existing.id
+          ? { ...i, ...form, batchId: batchFilter, status: 'Scheduled' }
+          : i
+        ),
+      }));
+    } else {
+      const id = 'i' + Date.now();
+      setAppState(prev => ({ ...prev, interviews: [...prev.interviews, { ...form, id, batchId: batchFilter, status: 'Scheduled' }] }));
+    }
     if (cand) {
       setAppState(prev => ({
         ...prev,
         candidates: prev.candidates.map(c =>
           c.id === form.candidateId
-            ? { ...c, status: 's2_review', activityLog: [...(c.activityLog || []), {
+            ? { ...c, activityLog: [...(c.activityLog || []), {
                 action: 'Interview scheduled for ' + Utils.fmtDate(form.date),
                 time: new Date().toISOString()
               }]}
@@ -112,66 +124,100 @@ window.SchedulePage = function({ navigate }) {
             </div>
           </div>
 
-          {allDates.length === 0 ? (
+          {toSchedule.length === 0 && allDates.length === 0 ? (
             <div className="card">
               <EmptyState icon="📅" title="No interviews scheduled" text="Click + Schedule Interview to add one." />
             </div>
           ) : (
-            allDates.map(date => (
-              <div key={date} className="schedule-day-group">
-                <div className="schedule-day-label">{Utils.dayLabel(date)}</div>
-                {(byDate[date] || []).map(iv => {
-                  const cand = getCand(iv.candidateId);
-                  const chair = getUser(iv.chairId);
-                  const alums = (iv.alumniIds || []).map(id => getAlum(id)).filter(Boolean);
-                  return (
-                    <div key={iv.id} className="interview-card" style={{cursor:'pointer'}} onClick={() => cand && navigate('candidate-detail', { candidateId: cand.id })}>
-                      <div className="interview-time">
-                        {iv.time}<br/>
-                        <span style={{fontSize:11, color:'var(--text-light)', fontWeight:400}}>25 min</span>
-                      </div>
-                      <div className="interview-info">
-                        <div className="interview-candidate">
-                          {cand ? cand.name : 'Unknown candidate'}
-                          {cand && <span style={{marginLeft:8, fontSize:11, color:'var(--text-light)'}}>· {cand.background}</span>}
+            <>
+              {/* Unscheduled — needs a date */}
+              {toSchedule.length > 0 && (
+                <div className="schedule-day-group">
+                  <div className="schedule-day-label" style={{color:'#d97706'}}>⚠ To Schedule ({toSchedule.length})</div>
+                  {toSchedule.map(iv => {
+                    const cand = getCand(iv.candidateId);
+                    return (
+                      <div
+                        key={iv.id}
+                        className="interview-card"
+                        style={{cursor:'pointer', borderLeft:'3px solid #d97706'}}
+                        onClick={() => cand && navigate('candidate-detail', { candidateId: cand.id, mode: 'interview' })}
+                      >
+                        <div className="interview-time" style={{color:'#d97706'}}>TBD</div>
+                        <div className="interview-info">
+                          <div className="interview-candidate">
+                            {cand ? cand.name : 'Unknown'}
+                            {cand && <span style={{marginLeft:8, fontSize:11, color:'var(--text-light)'}}>· {cand.background}</span>}
+                          </div>
+                          <div className="interview-panel" style={{color:'#d97706'}}>Needs scheduling — click + Schedule Interview to assign a slot</div>
                         </div>
-                        <div className="interview-panel">
-                          Chair: <strong>{chair ? chair.name : '—'}</strong>
-                          {alums.length > 0 && (
-                            <span style={{marginLeft:8}}>
-                              Alumni: {alums.map(a => a.name).join(', ')}
-                            </span>
+                        <div>
+                          <span style={{fontFamily:'var(--font-cond)', fontSize:12, fontWeight:700, color:'#d97706', background:'#fef3c7', padding:'3px 10px', borderRadius:20}}>
+                            To Schedule
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Scheduled interviews by date */}
+              {allDates.map(date => (
+                <div key={date} className="schedule-day-group">
+                  <div className="schedule-day-label">{Utils.dayLabel(date)}</div>
+                  {(byDate[date] || []).map(iv => {
+                    const cand = getCand(iv.candidateId);
+                    const chair = getUser(iv.chairId);
+                    const alums = (iv.alumniIds || []).map(id => getAlum(id)).filter(Boolean);
+                    return (
+                      <div key={iv.id} className="interview-card" style={{cursor:'pointer'}} onClick={() => cand && navigate('candidate-detail', { candidateId: cand.id, mode: 'interview' })}>
+                        <div className="interview-time">
+                          {iv.time}<br/>
+                          <span style={{fontSize:11, color:'var(--text-light)', fontWeight:400}}>25 min</span>
+                        </div>
+                        <div className="interview-info">
+                          <div className="interview-candidate">
+                            {cand ? cand.name : 'Unknown candidate'}
+                            {cand && <span style={{marginLeft:8, fontSize:11, color:'var(--text-light)'}}>· {cand.background}</span>}
+                          </div>
+                          <div className="interview-panel">
+                            Chair: <strong>{chair ? chair.name : '—'}</strong>
+                            {alums.length > 0 && (
+                              <span style={{marginLeft:8}}>
+                                Alumni: {alums.map(a => a.name).join(', ')}
+                              </span>
+                            )}
+                          </div>
+                          {iv.zoomLink && (
+                            <div style={{marginTop:4}}>
+                              <a href={iv.zoomLink} style={{color:'var(--blue)', fontSize:12}}>
+                                🎥 Zoom link
+                              </a>
+                            </div>
+                          )}
+                          {iv.notes && (
+                            <div style={{marginTop:4, fontSize:12, color:'var(--text-light)', fontStyle:'italic'}}>
+                              {iv.notes}
+                            </div>
                           )}
                         </div>
-                        {iv.zoomLink && (
-                          <div style={{marginTop:4}}>
-                            <a href={iv.zoomLink} style={{color:'var(--blue)', fontSize:12}}>
-                              🎥 Zoom link
-                            </a>
-                          </div>
-                        )}
-                        {iv.notes && (
-                          <div style={{marginTop:4, fontSize:12, color:'var(--text-light)', fontStyle:'italic'}}>
-                            {iv.notes}
-                          </div>
-                        )}
+                        <div>
+                          <span style={{
+                            fontFamily:'var(--font-cond)', fontSize:12, fontWeight:700,
+                            color: statusColor(iv.status),
+                            background: iv.status === 'Completed' ? '#ecfdf5'
+                              : iv.status === 'No-show' ? '#fff1f2' : '#eff6ff',
+                            padding:'3px 10px', borderRadius:20
+                          }}>
+                            {iv.status}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span style={{
-                          fontFamily:'var(--font-cond)', fontSize:12, fontWeight:700,
-                          color: statusColor(iv.status),
-                          background: iv.status === 'Completed' ? '#ecfdf5'
-                            : iv.status === 'No-show' ? '#fff1f2' : '#eff6ff',
-                          padding:'3px 10px', borderRadius:20
-                        }}>
-                          {iv.status}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))
+                    );
+                  })}
+                </div>
+              ))}
+            </>
           )}
         </div>
       )}
