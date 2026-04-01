@@ -27,17 +27,19 @@ function AppStateProvider({ children }) {
 
 // ── Nav items ─────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id: 'dashboard',  icon: '⬡',  label: 'Dashboard' },
-  { id: 'candidates', icon: '👤', label: 'Applications' },
-  { id: 'schedule',   icon: '📅', label: 'Interview Schedule' },
-  { id: 'export',     icon: '⬇',  label: 'Export' },
-  { id: 'settings',   icon: '⚙',  label: 'Settings' },
+  { id: 'dashboard',      icon: '⬡',  label: 'Dashboard' },
+  { id: 'candidates',     icon: '👤', label: 'Applications' },
+  { id: 'future-cohorts', icon: '🎓', label: 'Future Cohorts' },
+  { id: 'schedule',       icon: '📅', label: 'Interview Schedule' },
+  { id: 'export',         icon: '⬇',  label: 'Export' },
+  { id: 'settings',       icon: '⚙',  label: 'Settings' },
 ];
 
 const PAGE_TITLES = {
   dashboard:          'Dashboard',
   candidates:         'Applications',
   'candidate-detail': 'Candidate Profile',
+  'future-cohorts':   'Future Cohorts',
   schedule:           'Interview Schedule',
   export:             'Export',
   settings:           'Settings',
@@ -58,7 +60,8 @@ function AppShell({ currentUser, onLogout }) {
     switch (page) {
       case 'dashboard':        return <DashboardPage navigate={navigate} />;
       case 'candidates':       return <CandidatesPage navigate={navigate} initialFilter={pageParams} />;
-      case 'candidate-detail': return <CandidateDetailPage candidateId={pageParams.candidateId} navigate={navigate} />;
+      case 'candidate-detail': return <CandidateDetailPage candidateId={pageParams.candidateId} mode={pageParams.mode} navigate={navigate} />;
+      case 'future-cohorts':   return <FutureCohortsPage navigate={navigate} />;
       case 'schedule':         return <SchedulePage navigate={navigate} />;
       case 'export':           return <ExportPage />;
       case 'settings':         return <SettingsPage />;
