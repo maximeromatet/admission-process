@@ -1,0 +1,315 @@
+// ============================================================
+//  MSc X-HEC Entrepreneurs — Seed Data
+// ============================================================
+
+window.BATCHES_SEED = [
+  {
+    id: 'r1',
+    name: 'Round 1',
+    deadline: '2025-11-14',
+    admissibilityDate: '2025-12-12',
+    admissionDate: '2026-01-16',
+    targetSeats: 20,
+    isInternal: false,
+    note: '',
+    archived: false,
+  },
+  {
+    id: 'r2',
+    name: 'Round 2',
+    deadline: '2025-12-12',
+    admissibilityDate: '2026-01-22',
+    admissionDate: '2026-02-16',
+    targetSeats: 25,
+    isInternal: false,
+    note: '',
+    archived: false,
+  },
+  {
+    id: 'r3',
+    name: 'Round 3',
+    deadline: '2026-02-19',
+    admissibilityDate: '2026-03-16',
+    admissionDate: '2026-04-08',
+    targetSeats: 25,
+    isInternal: false,
+    note: '',
+    archived: false,
+  },
+  {
+    id: 'internal',
+    name: 'Internal Session',
+    deadline: '2026-02-13',
+    admissibilityDate: '2026-02-27',
+    admissionDate: '2026-03-24',
+    targetSeats: 40,
+    isInternal: true,
+    note: 'HEC & École Polytechnique students',
+    archived: false,
+  },
+  {
+    id: 'r4',
+    name: 'Round 4',
+    deadline: '2026-04-09',
+    admissibilityDate: '2026-04-29',
+    admissionDate: '2026-05-27',
+    targetSeats: 20,
+    isInternal: false,
+    note: '',
+    archived: false,
+  },
+];
+
+window.COMMITTEE_USERS_SEED = [
+  { id: 'u1', name: 'Etienne Krieger',          email: 'e.krieger@hec.edu',       role: 'Professor', initials: 'EK' },
+  { id: 'u2', name: 'Guillaume Le Dieu de Ville', email: 'g.ledieu@hec.edu',      role: 'Academic Director', initials: 'GL' },
+  { id: 'u3', name: 'Bruno Martinaud',           email: 'b.martinaud@hec.edu',     role: 'Academic Director', initials: 'BM' },
+  { id: 'u4', name: 'Zoé Lechevalier',           email: 'z.lechevalier@alumni.hec.edu', role: 'Alumni', initials: 'ZL' },
+  { id: 'u5', name: 'Miguel Torrez',             email: 'm.torrez@alumni.hec.edu', role: 'Alumni', initials: 'MT' },
+];
+
+window.ALUMNI_SEED = [
+  { id: 'a1', name: 'Zoé Lechevalier',  email: 'z.lechevalier@alumni.hec.edu', cohort: 2022, initials: 'ZL' },
+  { id: 'a2', name: 'Miguel Torrez',    email: 'm.torrez@alumni.hec.edu',       cohort: 2021, initials: 'MT' },
+];
+
+window.ALUMNI_AVAIL_SEED = [
+  { alumniId: 'a1', date: '2026-03-17', period: 'AM' },
+  { alumniId: 'a1', date: '2026-03-17', period: 'PM' },
+  { alumniId: 'a1', date: '2026-03-18', period: 'AM' },
+  { alumniId: 'a1', date: '2026-03-19', period: 'PM' },
+  { alumniId: 'a1', date: '2026-03-23', period: 'AM' },
+  { alumniId: 'a1', date: '2026-03-24', period: 'AM' },
+  { alumniId: 'a2', date: '2026-03-17', period: 'PM' },
+  { alumniId: 'a2', date: '2026-03-18', period: 'AM' },
+  { alumniId: 'a2', date: '2026-03-19', period: 'AM' },
+  { alumniId: 'a2', date: '2026-03-20', period: 'AM' },
+  { alumniId: 'a2', date: '2026-03-23', period: 'PM' },
+  { alumniId: 'a2', date: '2026-03-24', period: 'AM' },
+];
+
+window.INTERVIEWS_SEED = [
+  {
+    id: 'i1', candidateId: 'c1', batchId: 'r3',
+    date: '2026-03-17', time: '09:00',
+    chairId: 'u1', alumniIds: ['a1', 'a2'],
+    zoomLink: 'https://zoom.us/j/111222333',
+    status: 'Completed', notes: 'Very sharp. Clear entrepreneurial narrative, excellent presence.',
+  },
+  {
+    id: 'i2', candidateId: 'c2', batchId: 'r3',
+    date: '2026-03-18', time: '10:00',
+    chairId: 'u2', alumniIds: ['a1'],
+    zoomLink: 'https://zoom.us/j/444555666',
+    status: 'Completed', notes: 'Strong conviction, great track record at Alan and Mallow.',
+  },
+  {
+    id: 'i3', candidateId: 'c3', batchId: 'r3',
+    date: '2026-03-19', time: '14:00',
+    chairId: 'u3', alumniIds: ['a2'],
+    zoomLink: 'https://zoom.us/j/777888999',
+    status: 'Completed', notes: 'Struggled to articulate a coherent entrepreneurial project. Gap years unexplained.',
+  },
+  {
+    id: 'i4', candidateId: 'c4', batchId: 'r3',
+    date: '2026-03-20', time: '09:30',
+    chairId: 'u1', alumniIds: ['a1', 'a2'],
+    zoomLink: 'https://zoom.us/j/123456789',
+    status: 'Completed', notes: 'Outstanding VC background for his age. Very mature, international mindset.',
+  },
+  {
+    id: 'i5', candidateId: 'c7', batchId: 'internal',
+    date: '2026-03-10', time: '09:00',
+    chairId: 'u2', alumniIds: ['a1'],
+    zoomLink: 'https://zoom.us/j/987654321',
+    status: 'Completed', notes: 'Excellent technical foundation, genuine entrepreneurial ambition.',
+  },
+];
+
+window.CANDIDATES_SEED = [
+
+  // ── c1: Maxime Romatet — Bocconi — App Review (demo candidate) ─
+  {
+    id: 'c1', batchId: 'r3',
+    name: 'Maxime Romatet',
+    email: 'm.romatet@email.com', phone: '+33 6 11 22 33 44',
+    nationality: 'French', school: 'Bocconi University',
+    degree: 'BSc Political Science & Economics',
+    graduationYear: 2026, background: 'Business', gender: 'M', dob: '2005-03-14',
+    isInternal: false, applicationDate: '2026-02-10',
+    assignedEvaluatorS1: 'u1', assignedEvaluatorS2: null,
+    status: 'app_review',
+    stage1Scores: {},
+    stage2Scores: null,
+    docs: { degree: true, transcripts: true, cv: true, english: true, essay: true, references: true, photo: true },
+    notes: '',
+    s2Notes: '',
+    pdfUrl: '/maxime.pdf',
+    activityLog: [
+      { action: 'Application submitted', time: '2026-02-10T10:00:00' },
+      { action: 'Moved to Application Review', time: '2026-03-20T09:00:00' },
+    ],
+  },
+
+  // ── c2: Manon Ribadeau-Dumas — HEC PGE — Accepted ───────────
+  {
+    id: 'c2', batchId: 'r3',
+    name: 'Manon Ribadeau-Dumas',
+    email: 'm.ribadeau@email.com', phone: '+33 6 22 33 44 55',
+    nationality: 'French', school: 'HEC Paris',
+    degree: 'Programme Grande École',
+    graduationYear: 2026, background: 'Business', gender: 'F', dob: '2002-07-08',
+    isInternal: false, applicationDate: '2026-02-12',
+    assignedEvaluatorS1: 'u2', assignedEvaluatorS2: 'u1',
+    status: 'accepted',
+    stage1Scores: { academic: 5, entrepreneurial: 4.5, professional: 4.5, essay: 5, international: 4 },
+    stage2Scores: { alignment: 5, mindset: 4.5, motivation: 5, resilience: 4.5, communication: 5 },
+    docs: { degree: true, transcripts: true, cv: true, english: true, essay: true, references: true, photo: true },
+    notes: 'Outstanding profile. Internships at Alan (health tech) and Mallow (edtech) show both execution ability and sector curiosity. Essay is remarkably well-written — clear vision and authentic voice.',
+    s2Notes: 'One of the strongest interviews of the round. Exceptional clarity of thought, natural leadership. Top of cohort candidate.',
+    activityLog: [
+      { action: 'Application submitted', time: '2026-02-12T09:30:00' },
+      { action: 'Stage 1 scores saved (avg 4.6)', time: '2026-03-09T10:00:00' },
+      { action: 'Marked as Admissible', time: '2026-03-16T10:00:00' },
+      { action: 'Interview invitation sent', time: '2026-03-16T11:30:00' },
+      { action: 'Interview conducted', time: '2026-03-18T10:00:00' },
+      { action: 'Stage 2 scores saved (avg 4.8)', time: '2026-03-28T15:00:00' },
+      { action: 'Decision applied: Accepted', time: '2026-03-29T10:00:00' },
+    ],
+  },
+
+  // ── c3: Mateo Santon — HEC PGE — Rejected ───────────────────
+  {
+    id: 'c3', batchId: 'r3',
+    name: 'Mateo Santon',
+    email: 'm.santon@email.com', phone: '+33 6 33 44 55 66',
+    nationality: 'French', school: 'HEC Paris',
+    degree: 'Programme Grande École',
+    graduationYear: 2026, background: 'Business', gender: 'M', dob: '2001-11-22',
+    isInternal: false, applicationDate: '2026-02-15',
+    assignedEvaluatorS1: 'u3', assignedEvaluatorS2: 'u2',
+    status: 'rejected',
+    stage1Scores: { academic: 4, entrepreneurial: 2, professional: 2.5, essay: 2.5, international: 3.5 },
+    stage2Scores: { alignment: 2, mindset: 2.5, motivation: 2, resilience: 2.5, communication: 3 },
+    docs: { degree: true, transcripts: true, cv: true, english: true, essay: true, references: true, photo: true },
+    notes: 'Strong academic record (HEC). Internship at Audacia (PE) shows finance ability but limited entrepreneurial signal. 2 gap years mentioned but not reflected in any project or meaningful experience in the file. Essay lacks conviction.',
+    s2Notes: 'Could not articulate a clear entrepreneurial project or motivation for the program specifically. Semester in Argentina not leveraged. Committee aligned on rejection.',
+    activityLog: [
+      { action: 'Application submitted', time: '2026-02-15T14:00:00' },
+      { action: 'Stage 1 scores saved (avg 2.9)', time: '2026-03-10T09:00:00' },
+      { action: 'Marked as Admissible', time: '2026-03-16T10:00:00' },
+      { action: 'Interview invitation sent', time: '2026-03-16T11:30:00' },
+      { action: 'Interview conducted', time: '2026-03-19T14:00:00' },
+      { action: 'Stage 2 scores saved (avg 2.4)', time: '2026-03-28T16:00:00' },
+      { action: 'Decision applied: Rejected', time: '2026-03-29T10:00:00' },
+    ],
+  },
+
+  // ── c4: Paolo Combastet — Boston University — Accepted ───────
+  {
+    id: 'c4', batchId: 'r3',
+    name: 'Paolo Combastet',
+    email: 'p.combastet@email.com', phone: '+33 6 44 55 66 77',
+    nationality: 'French', school: 'Boston University',
+    degree: 'BBA — Bachelor of Business Administration',
+    graduationYear: 2025, background: 'Business', gender: 'M', dob: '2001-05-03',
+    isInternal: false, applicationDate: '2026-02-08',
+    assignedEvaluatorS1: 'u1', assignedEvaluatorS2: 'u2',
+    status: 'accepted',
+    stage1Scores: { academic: 4, entrepreneurial: 4.5, professional: 5, essay: 4.5, international: 5 },
+    stage2Scores: { alignment: 5, mindset: 4.5, motivation: 5, resilience: 4.5, communication: 4.5 },
+    docs: { degree: true, transcripts: true, cv: true, english: true, essay: true, references: true, photo: true },
+    notes: 'Exceptional professional experience for his age — internships at Headline (global VC) and Weinberg Capital Partners. International trajectory (BU) strongly differentiates from typical French candidates. Essay shows mature investor-to-founder mindset shift.',
+    s2Notes: 'Very impressive. Knows the VC world from the inside and wants to build. Mature, grounded, international. Strong accept.',
+    activityLog: [
+      { action: 'Application submitted', time: '2026-02-08T11:00:00' },
+      { action: 'Stage 1 scores saved (avg 4.6)', time: '2026-03-07T10:00:00' },
+      { action: 'Marked as Admissible', time: '2026-03-16T10:00:00' },
+      { action: 'Interview invitation sent', time: '2026-03-16T11:30:00' },
+      { action: 'Interview conducted', time: '2026-03-20T09:30:00' },
+      { action: 'Stage 2 scores saved (avg 4.7)', time: '2026-03-28T17:00:00' },
+      { action: 'Decision applied: Accepted', time: '2026-03-29T10:00:00' },
+    ],
+  },
+
+  // ── c5: Camille Aubert — ENSEEIHT — S1 Complete / Admissible ─
+  {
+    id: 'c5', batchId: 'r3',
+    name: 'Camille Aubert',
+    email: 'c.aubert@email.com', phone: '+33 6 55 66 77 88',
+    nationality: 'French', school: 'ENSEEIHT (INP Toulouse)',
+    degree: 'Engineering Degree — Computer Science & Networks',
+    graduationYear: 2026, background: 'Engineering', gender: 'F', dob: '2002-04-17',
+    isInternal: false, applicationDate: '2026-02-17',
+    assignedEvaluatorS1: 'u3', assignedEvaluatorS2: null,
+    status: 's1_complete',
+    stage1Scores: { academic: 4.5, entrepreneurial: 3.5, professional: 3.5, essay: 4, international: 3 },
+    stage2Scores: null,
+    docs: { degree: true, transcripts: true, cv: true, english: true, essay: true, references: true, photo: true },
+    notes: 'Strong technical profile from a top engineering school. Essay shows a genuine interest in tech entrepreneurship — references a personal project in AI tooling. Admissible. Awaiting interview invitation.',
+    s2Notes: '',
+    activityLog: [
+      { action: 'Application submitted', time: '2026-02-17T10:00:00' },
+      { action: 'Stage 1 scores saved (avg 3.7)', time: '2026-03-14T11:00:00' },
+      { action: 'Marked as Admissible', time: '2026-03-16T10:00:00' },
+    ],
+  },
+
+  // ── c6: Lucas Favier — UCL Law — Round 4 / S1 Review ─────────
+  {
+    id: 'c6', batchId: 'r4',
+    name: 'Lucas Favier',
+    email: 'l.favier@email.com', phone: '+33 6 66 77 88 99',
+    nationality: 'French', school: 'University College London',
+    degree: 'LLB — Bachelor of Laws',
+    graduationYear: 2025, background: 'Science & Other', gender: 'M', dob: '2002-09-30',
+    isInternal: false, applicationDate: '2026-03-28',
+    assignedEvaluatorS1: 'u2', assignedEvaluatorS2: null,
+    status: 's1_review',
+    stage1Scores: {},
+    stage2Scores: null,
+    docs: { degree: true, transcripts: true, cv: true, english: true, essay: true, references: false, photo: true },
+    notes: '',
+    s2Notes: '',
+    activityLog: [
+      { action: 'Application submitted', time: '2026-03-28T14:00:00' },
+      { action: 'Moved to Stage 1 review', time: '2026-03-31T09:00:00' },
+    ],
+  },
+
+  // ── c7: Antoine Lebrun — École Polytechnique — Accepted ──────
+  {
+    id: 'c7', batchId: 'internal',
+    name: 'Antoine Lebrun',
+    email: 'a.lebrun@polytechnique.edu', phone: '+33 6 77 88 99 00',
+    nationality: 'French', school: 'École Polytechnique',
+    degree: 'Ingénieur Polytechnicien — Applied Mathematics',
+    graduationYear: 2026, background: 'Engineering', gender: 'M', dob: '2001-01-25',
+    isInternal: true, applicationDate: '2026-01-20',
+    assignedEvaluatorS1: 'u1', assignedEvaluatorS2: 'u2',
+    status: 'accepted',
+    stage1Scores: { academic: 5, entrepreneurial: 4, professional: 3.5, essay: 4.5, international: 4 },
+    stage2Scores: { alignment: 4.5, mindset: 4.5, motivation: 4.5, resilience: 4, communication: 4 },
+    docs: { degree: true, transcripts: true, cv: true, english: true, essay: true, references: true, photo: true },
+    notes: 'Top academic pedigree (X). Essay shows a genuine shift from research to entrepreneurship — referenced a robotics project developed at the school. Strong analytical mind with entrepreneurial curiosity.',
+    s2Notes: 'Thoughtful, humble, and driven. Clear on why he wants to build rather than consult or research. Solid accept for the X Session.',
+    activityLog: [
+      { action: 'Application submitted', time: '2026-01-20T10:00:00' },
+      { action: 'Stage 1 scores saved (avg 4.2)', time: '2026-02-10T11:00:00' },
+      { action: 'Marked as Admissible', time: '2026-02-27T10:00:00' },
+      { action: 'Interview invitation sent', time: '2026-02-27T11:30:00' },
+      { action: 'Interview conducted', time: '2026-03-10T09:00:00' },
+      { action: 'Stage 2 scores saved (avg 4.3)', time: '2026-03-20T14:00:00' },
+      { action: 'Decision applied: Accepted', time: '2026-03-24T10:00:00' },
+    ],
+  },
+];
+
+window.SETTINGS_SEED = {
+  totalTarget: 120,
+  businessPct: 30,
+  engineeringPct: 30,
+  diversePct: 30,
+  internalTarget: 40,
+  womenPct: 44,
+};
