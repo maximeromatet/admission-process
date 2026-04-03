@@ -19,7 +19,7 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
     school: '', degree: '', graduationYear: new Date().getFullYear(),
     background: 'Business', gender: 'M', dob: '',
     batchId: 'r3',
-    notes: '', s2Notes: '', pdfUrl: '',
+    notes: '', interviewNotes: '', pdfUrl: '',
     docs: { degree: false, transcripts: false, cv: false, english: false, essay: false, references: false, photo: false },
   };
   const [form, setForm]     = useState(EMPTY_FORM);
@@ -28,7 +28,7 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
 
   const TABS = [
     { id: 'all',        label: 'All' },
-    { id: 'app_review', label: 'App Review', statuses: ['pending','app_review'] },
+    { id: 'app_review', label: 'Application Review', statuses: ['pending','app_review'] },
     { id: 'interview',  label: 'Interview',  statuses: ['interview'] },
     { id: 'accepted',   label: 'Accepted',   statuses: ['accepted'] },
     { id: 'waitlisted', label: 'Waitlisted', statuses: ['waitlisted'] },
@@ -137,7 +137,7 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
           <option value="">All Backgrounds</option>
           <option>Business</option>
           <option>Engineering</option>
-          <option>Science &amp; Other</option>
+          <option>Diverse</option>
         </select>
         <select {...inp} value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
           <option value="">All Genders</option>
@@ -165,8 +165,8 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
                   <th>Background</th>
                   <th>Age</th>
                   <th>Gender</th>
-                  <th>S1</th>
-                  <th>S2</th>
+                  <th>Application Review</th>
+                  <th>Interview</th>
                   <th>Overall</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -296,7 +296,7 @@ window.CandidatesPage = function({ navigate, initialFilter }) {
             <select {...inp} value={form.background} onChange={e => setField('background', e.target.value)}>
               <option>Business</option>
               <option>Engineering</option>
-              <option>Science &amp; Other</option>
+              <option>Diverse</option>
             </select>
           </div>
         </div>

@@ -179,7 +179,7 @@ window.Utils = (() => {
     const total = accepted.length;
     const business = accepted.filter(c => c.background === 'Business').length;
     const engineering = accepted.filter(c => c.background === 'Engineering').length;
-    const diverse = accepted.filter(c => c.background === 'Science & Other').length;
+    const diverse = accepted.filter(c => c.background === 'Diverse').length;
     const internal = accepted.filter(c => c.isInternal).length;
     const women = accepted.filter(c => c.gender === 'F').length;
     const ages = accepted.map(c => calcAge(c.dob)).filter(a => typeof a === 'number');

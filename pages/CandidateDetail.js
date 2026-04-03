@@ -19,6 +19,19 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
   const [statusOverride, setStatusOverride] = useState('');
   const [pdfUrl, setPdfUrl]   = useState(c ? (c.pdfUrl || null) : null);
   const [pdfName, setPdfName] = useState(c && c.pdfUrl ? 'Application PDF' : '');
+  const [editProfile, setEditProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    name:           c ? (c.name || '')           : '',
+    email:          c ? (c.email || '')          : '',
+    phone:          c ? (c.phone || '')          : '',
+    school:         c ? (c.school || '')         : '',
+    degree:         c ? (c.degree || '')         : '',
+    background:     c ? (c.background || '')     : '',
+    nationality:    c ? (c.nationality || '')    : '',
+    dob:            c ? (c.dob || '')            : '',
+    graduationYear: c ? (c.graduationYear || '') : '',
+    gender:         c ? (c.gender || 'M')        : 'M',
+  });
   const flashTimer   = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -148,6 +161,15 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
     updateCandidate({ docs: newDocs });
   }
 
+  function saveProfile() {
+    updateCandidate({
+      ...profileForm,
+      graduationYear: parseInt(profileForm.graduationYear) || profileForm.graduationYear,
+    });
+    setEditProfile(false);
+    flash('Profile saved');
+  }
+
   // ── StageHeader ───────────────────────────────────────────
   function StageHeader({ stageLabel, title, color }) {
     return (
@@ -199,30 +221,90 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
 
       {/* Profile card */}
       <div className="card">
+        <div className="card-header">
+          <span className="card-title">Profile</span>
+          {!editProfile
+            ? <button className="btn btn-outline btn-sm" onClick={() => setEditProfile(true)}>✏ Edit</button>
+            : <div style={{display:'flex', gap:8}}>
+                <button className="btn btn-ghost btn-sm" onClick={() => { setEditProfile(false); setProfileForm({ name: c.name||'', email: c.email||'', phone: c.phone||'', school: c.school||'', degree: c.degree||'', background: c.background||'', nationality: c.nationality||'', dob: c.dob||'', graduationYear: c.graduationYear||'', gender: c.gender||'M' }); }}>Cancel</button>
+                <button className="btn btn-primary btn-sm" onClick={saveProfile}>✓ Save</button>
+              </div>
+          }
+        </div>
         <div className="card-body">
           <div style={{display:'flex', gap:12, alignItems:'flex-start', marginBottom:12}}>
-            <div className="avatar-lg" style={{background: c.gender === 'F' ? '#9333ea' : 'var(--blue)', flexShrink:0}}>
-              {Utils.initials(c.name)}
+            <div className="avatar-lg" style={{background: (editProfile ? profileForm.gender : c.gender) === 'F' ? '#9333ea' : 'var(--blue)', flexShrink:0}}>
+              {Utils.initials(editProfile ? profileForm.name : c.name)}
             </div>
             <div style={{flex:1, minWidth:0}}>
-              <div style={{fontFamily:'var(--font-cond)', fontSize:18, fontWeight:800, color:'var(--navy)', lineHeight:1.2}}>
-                {c.name}
-                {c.isInternal && <span style={{marginLeft:8, fontSize:11, color:'var(--blue)', fontWeight:700}}>INTERNAL</span>}
-              </div>
-              <div style={{fontSize:12, color:'var(--text-light)', marginTop:2}}>{c.school}</div>
+              {editProfile ? (
+                <input
+                  className="form-control"
+                  style={{fontSize:16, fontWeight:700, marginBottom:4}}
+                  value={profileForm.name}
+                  onChange={e => setProfileForm(p => ({...p, name: e.target.value}))}
+                  placeholder="Full name"
+                />
+              ) : (
+                <div style={{fontFamily:'var(--font-cond)', fontSize:18, fontWeight:800, color:'var(--navy)', lineHeight:1.2}}>
+                  {c.name}
+                  {c.isInternal && <span style={{marginLeft:8, fontSize:11, color:'var(--blue)', fontWeight:700}}>INTERNAL</span>}
+                </div>
+              )}
+              {editProfile ? (
+                <input className="form-control" style={{fontSize:12, marginTop:4}} value={profileForm.email} onChange={e => setProfileForm(p => ({...p, email: e.target.value}))} placeholder="Email" />
+              ) : (
+                <div style={{fontSize:12, color:'var(--text-light)', marginTop:2}}>{c.school}</div>
+              )}
               <div style={{marginTop:6, display:'flex', gap:6, flexWrap:'wrap', alignItems:'center'}}>
                 <StatusBadge status={c.status} />
                 {batch && <span style={{fontSize:11, color:'var(--text-light)'}}>{batch.name}</span>}
               </div>
             </div>
           </div>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'4px 12px', fontSize:12}}>
-            <span style={{color:'var(--text-light)'}}>Degree</span>      <span style={{fontWeight:500}}>{c.degree}</span>
-            <span style={{color:'var(--text-light)'}}>Background</span>  <span style={{fontWeight:500}}>{c.background}</span>
-            <span style={{color:'var(--text-light)'}}>Nationality</span> <span style={{fontWeight:500}}>{c.nationality}</span>
-            <span style={{color:'var(--text-light)'}}>Age</span>         <span style={{fontWeight:500}}>{Utils.calcAge(c.dob)} yo</span>
-            <span style={{color:'var(--text-light)'}}>Applied</span>     <span style={{fontWeight:500}}>{Utils.fmtDate(c.applicationDate)}</span>
-          </div>
+
+          {editProfile ? (
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
+              {[
+                { label:'School',          key:'school',         type:'text' },
+                { label:'Degree',          key:'degree',         type:'text' },
+                { label:'Graduation Year', key:'graduationYear', type:'number' },
+                { label:'Nationality',     key:'nationality',    type:'text' },
+                { label:'Phone',           key:'phone',          type:'text' },
+                { label:'Date of Birth',   key:'dob',            type:'date' },
+              ].map(({ label, key, type }) => (
+                <div key={key} className="form-group" style={{marginBottom:4}}>
+                  <label className="form-label" style={{fontSize:10}}>{label}</label>
+                  <input className="form-control" style={{fontSize:12}} type={type} value={profileForm[key]} onChange={e => setProfileForm(p => ({...p, [key]: e.target.value}))} />
+                </div>
+              ))}
+              <div className="form-group" style={{marginBottom:4}}>
+                <label className="form-label" style={{fontSize:10}}>Background</label>
+                <select className="form-control" style={{fontSize:12}} value={profileForm.background} onChange={e => setProfileForm(p => ({...p, background: e.target.value}))}>
+                  <option>Business</option>
+                  <option>Engineering</option>
+                  <option>Diverse</option>
+                </select>
+              </div>
+              <div className="form-group" style={{marginBottom:4}}>
+                <label className="form-label" style={{fontSize:10}}>Gender</label>
+                <select className="form-control" style={{fontSize:12}} value={profileForm.gender} onChange={e => setProfileForm(p => ({...p, gender: e.target.value}))}>
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'4px 12px', fontSize:12}}>
+              <span style={{color:'var(--text-light)'}}>School</span>      <span style={{fontWeight:500}}>{c.school}</span>
+              <span style={{color:'var(--text-light)'}}>Degree</span>      <span style={{fontWeight:500}}>{c.degree}</span>
+              <span style={{color:'var(--text-light)'}}>Background</span>  <span style={{fontWeight:500}}>{c.background}</span>
+              <span style={{color:'var(--text-light)'}}>Nationality</span> <span style={{fontWeight:500}}>{c.nationality}</span>
+              <span style={{color:'var(--text-light)'}}>Age</span>         <span style={{fontWeight:500}}>{Utils.calcAge(c.dob)} yo</span>
+              <span style={{color:'var(--text-light)'}}>Applied</span>     <span style={{fontWeight:500}}>{Utils.fmtDate(c.applicationDate)}</span>
+            </div>
+          )}
 
           {/* Documents — editable during app-review and always */}
           <div style={{marginTop:12, paddingTop:12, borderTop:'1px solid var(--border)'}}>

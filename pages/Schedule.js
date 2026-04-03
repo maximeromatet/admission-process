@@ -8,7 +8,7 @@ window.SchedulePage = function({ navigate }) {
   const { candidates, batches, users, alumni, alumniAvail, interviews } = appState;
 
   const [activeTab, setActiveTab] = useState('agenda');
-  const [batchFilter, setBatchFilter] = useState('r1');
+  const [batchFilter, setBatchFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     candidateId: '', date: '', time: '09:00',
@@ -112,6 +112,7 @@ window.SchedulePage = function({ navigate }) {
               value={batchFilter}
               onChange={e => setBatchFilter(e.target.value)}
             >
+              <option value="">All Rounds</option>
               {batches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
             <span style={{fontSize:12, color:'var(--text-light)'}}>
@@ -265,7 +266,6 @@ window.SchedulePage = function({ navigate }) {
                       <tr key={a.id}>
                         <td style={{fontWeight:600, whiteSpace:'nowrap', background:'#fafcfe'}}>
                           {a.name}
-                          <div style={{fontSize:11, color:'var(--text-light)'}}>Class of {a.cohort}</div>
                         </td>
                         {alumniGridDays.map(d => (
                           <React.Fragment key={d}>
@@ -338,7 +338,7 @@ window.SchedulePage = function({ navigate }) {
               onChange={e => setForm(prev => ({ ...prev, chairId: e.target.value }))}
             >
               <option value="">Select chair…</option>
-              {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              {users.filter(u => u.role !== 'Alumni').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
           </div>
           <div className="form-group">
@@ -385,7 +385,7 @@ window.SchedulePage = function({ navigate }) {
                       setForm(prev => ({ ...prev, alumniIds: ids }));
                     }}
                   />
-                  {a.name} <span style={{color:'var(--text-light)', fontSize:11}}>Class of {a.cohort}</span>
+                  {a.name}
                 </label>
               ))}
               {getAvailAlumni(form.date, form.time).length === 0 && (

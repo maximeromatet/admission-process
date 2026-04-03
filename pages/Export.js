@@ -18,12 +18,12 @@ window.ExportPage = function() {
     const headers = [
       'ID','Name','Email','Phone','Nationality','School','Degree','GradYear',
       'Background','Gender','DOB','Age','Batch','Internal','Status',
-      'S1_Academic','S1_Entrepreneurial','S1_Professional','S1_Essay','S1_International','S1_Avg',
-      'S2_Alignment','S2_Mindset','S2_Motivation','S2_Resilience','S2_Communication','S2_Avg',
+      'ApplicationReview_Academic','ApplicationReview_Entrepreneurial','ApplicationReview_Professional','ApplicationReview_Essay','ApplicationReview_International','ApplicationReview_Avg',
+      'Interview_Alignment','Interview_Mindset','Interview_Motivation','Interview_Resilience','Interview_Communication','Interview_Avg',
       'Overall','AutoDecision','ApplicationDate'
     ];
 
-    const rows = exportCands.map(c => {
+      const rows = exportCands.map(c => {
       const s1 = c.stage1Scores || {};
       const s2 = c.stage2Scores || {};
       const s1a = Utils.s1Avg(c);

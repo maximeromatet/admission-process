@@ -1,17 +1,30 @@
 // ============================================================
-//  Alumni Portal — Standalone availability page
+//  Alumni Portal — per-alumni availability with localStorage persistence
 // ============================================================
 
-window.AlumniPortalPage = function({ onLogout }) {
-  const { useState } = React;
+window.AlumniPortalPage = function({ onLogout, alumniEmail }) {
+  const { useState, useEffect } = React;
   const [appState, setAppState] = React.useContext(window.AppStateContext);
-  const { batches } = appState;
-  const [batchId, setBatchId] = useState('r3');
-  const [saved, setSaved] = useState(false);
-  const [localAvail, setLocalAvail] = useState([]);
+  const { batches, alumni } = appState;
+
+  const me = alumni.find(a => a.email === alumniEmail);
+  const storageKey = me ? 'xhec_avail_' + me.id : null;
+
+  // Load from localStorage on mount, fall back to empty
+  function loadSaved() {
+    if (!storageKey) return [];
+    try {
+      const raw = localStorage.getItem(storageKey);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+
+  const [batchId, setBatchId]       = useState(() => batches.filter(b => !b.archived)[0]?.id || 'r3');
+  const [saved, setSaved]           = useState(false);
+  const [localAvail, setLocalAvail] = useState(loadSaved);
 
   const batch = batches.find(b => b.id === batchId);
-  const days = batch ? Utils.interviewWindow(batch) : [];
+  const days  = batch ? Utils.interviewWindow(batch) : [];
 
   function toggle(date, period) {
     const key = date + '_' + period;
@@ -21,11 +34,42 @@ window.AlumniPortalPage = function({ onLogout }) {
   }
 
   function saveAvail() {
+    if (!me) return;
+
+    // Persist to localStorage so it survives logout/login
+    if (storageKey) {
+      try { localStorage.setItem(storageKey, JSON.stringify(localAvail)); } catch(e) {}
+    }
+
+    // Also write to shared app state so admin sees it immediately
+    const newEntries = localAvail.map(key => {
+      const [date, period] = key.split('_');
+      return { alumniId: me.id, date, period };
+    });
+    setAppState(prev => ({
+      ...prev,
+      alumniAvail: [
+        ...prev.alumniAvail.filter(av => av.alumniId !== me.id),
+        ...newEntries,
+      ],
+    }));
+
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }
 
   const availCount = localAvail.length;
+
+  if (!me) return (
+    <div style={{minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--navy)'}}>
+      <div style={{background:'#fff', borderRadius:12, padding:40, textAlign:'center', maxWidth:360}}>
+        <div style={{fontSize:24, marginBottom:12}}>⚠</div>
+        <div style={{fontFamily:'var(--font-cond)', fontSize:18, fontWeight:700, color:'var(--navy)', marginBottom:8}}>Account not found</div>
+        <div style={{fontSize:13, color:'var(--text-light)', marginBottom:20}}>No alumni record matches {alumniEmail}.</div>
+        <button className="btn btn-primary" onClick={onLogout}>Sign out</button>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{
@@ -52,7 +96,7 @@ window.AlumniPortalPage = function({ onLogout }) {
               Alumni Interview Portal
             </div>
             <div style={{fontFamily:'var(--font-cond)', fontSize:13, color:'rgba(255,255,255,0.55)', marginTop:2}}>
-              MSc X-HEC Entrepreneurs — Admissions 2025–26
+              Welcome, {me.name} — MSc X-HEC Entrepreneurs 2025–26
             </div>
           </div>
           <button
@@ -72,7 +116,7 @@ window.AlumniPortalPage = function({ onLogout }) {
               className="form-control"
               style={{width:'auto'}}
               value={batchId}
-              onChange={e => setBatchId(e.target.value)}
+              onChange={e => { setBatchId(e.target.value); setSaved(false); }}
             >
               {batches.filter(b => !b.archived).map(b => (
                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -133,8 +177,8 @@ window.AlumniPortalPage = function({ onLogout }) {
                                 display:'flex', alignItems:'center', justifyContent:'center',
                                 fontFamily:'var(--font-cond)', fontWeight:700, fontSize:14,
                                 background: isAvail ? '#d1fae5' : '#f3f4f6',
-                                color: isAvail ? '#065f46' : '#9ca3af',
-                                border: isAvail ? '2px solid #6ee7b7' : '2px solid transparent',
+                                color:      isAvail ? '#065f46' : '#9ca3af',
+                                border:     isAvail ? '2px solid #6ee7b7' : '2px solid transparent',
                                 transition:'all 0.15s', userSelect:'none',
                               }}
                             >
@@ -157,6 +201,11 @@ window.AlumniPortalPage = function({ onLogout }) {
             <span style={{fontSize:12, color:'var(--text-light)'}}>
               {availCount} slot{availCount !== 1 ? 's' : ''} selected
             </span>
+            {saved && (
+              <span style={{fontSize:12, color:'#16a34a', fontWeight:600}}>
+                ✓ Your availability has been saved and sent to the admissions team.
+              </span>
+            )}
           </div>
         </div>
       </div>

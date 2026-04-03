@@ -10,16 +10,16 @@ window.FutureCohortsPage = function({ navigate }) {
 
   const accepted = candidates.filter(c => c.status === 'accepted');
 
-  const CATEGORIES = ['Business', 'Engineering', 'Science & Other'];
+  const CATEGORIES = ['Business', 'Engineering', 'Diverse'];
   const CATEGORY_COLORS = {
     'Business':        { bg:'#eff6ff', border:'#2563eb', text:'#1e40af' },
     'Engineering':     { bg:'#f0fdf4', border:'#16a34a', text:'#166534' },
-    'Science & Other': { bg:'#faf5ff', border:'#9333ea', text:'#6b21a8' },
+    'Diverse': { bg:'#faf5ff', border:'#9333ea', text:'#6b21a8' },
   };
 
   function getCat(c) {
     if (c.background === 'Engineering')     return 'Engineering';
-    if (c.background === 'Science & Other') return 'Science & Other';
+    if (c.background === 'Diverse') return 'Diverse';
     return 'Business';
   }
 

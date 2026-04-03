@@ -58,7 +58,7 @@ window.SettingsPage = function() {
             {F('totalTarget', 'Total Seats Target', 'seats', 1, 500)}
             {F('businessPct', 'Business Background Target', '%', 0, 100)}
             {F('engineeringPct', 'Engineering Background Target', '%', 0, 100)}
-            {F('diversePct', 'Science & Other Target', '%', 0, 100)}
+            {F('diversePct', 'Diverse BackgroundTarget', '%', 0, 100)}
             {F('internalTarget', 'Internal (X/HEC) Target', 'seats', 0, 200)}
             {F('womenPct', 'Women Target', '% minimum', 0, 100)}
 

@@ -1,6 +1,7 @@
 const CREDENTIALS = {
-  "admin@xhec.fr": "xhec2026",
-  "alumni@xhec.fr": "alumni2026",
+  "admin@xhec.fr":                  "xhec2026",
+  "z.lechevalier@alumni.hec.edu":   "alumni2026",
+  "m.torrez@alumni.hec.edu":        "alumni2026",
 };
 
 function Login({ onLogin }) {

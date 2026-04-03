@@ -7,13 +7,48 @@ const { useState, createContext, useContext } = React;
 // ── Global state context ──────────────────────────────────────
 window.AppStateContext = createContext(null);
 
+// Merge seed availabilities with anything alumni have saved in localStorage.
+// For any alumni who has localStorage data, their localStorage entries win
+// (the seed entries for that alumni are dropped). This ensures that when
+// an admin opens the portal after an alumni has submitted their availability,
+// the admin sees the real submitted slots rather than the seed placeholder.
+function loadAlumniAvail() {
+  const fromStorage = [];
+  const alumniWithStorageData = new Set();
+
+  window.ALUMNI_SEED.forEach(function(a) {
+    try {
+      const raw = localStorage.getItem('xhec_avail_' + a.id);
+      if (raw) {
+        const keys = JSON.parse(raw); // ["2026-02-05_AM", ...]
+        if (Array.isArray(keys) && keys.length > 0) {
+          alumniWithStorageData.add(a.id);
+          keys.forEach(function(key) {
+            const parts = key.split('_');
+            if (parts.length === 2) {
+              fromStorage.push({ alumniId: a.id, date: parts[0], period: parts[1] });
+            }
+          });
+        }
+      }
+    } catch(e) {}
+  });
+
+  // Keep seed entries only for alumni who haven't submitted anything yet
+  const seedEntries = window.ALUMNI_AVAIL_SEED.filter(function(av) {
+    return !alumniWithStorageData.has(av.alumniId);
+  });
+
+  return seedEntries.concat(fromStorage);
+}
+
 function AppStateProvider({ children }) {
   const [state, setState] = useState({
     candidates: window.CANDIDATES_SEED,
     batches: window.BATCHES_SEED,
     users: window.COMMITTEE_USERS_SEED,
     alumni: window.ALUMNI_SEED,
-    alumniAvail: window.ALUMNI_AVAIL_SEED,
+    alumniAvail: loadAlumniAvail(),
     interviews: window.INTERVIEWS_SEED,
     settings: window.SETTINGS_SEED,
   });
@@ -29,18 +64,17 @@ function AppStateProvider({ children }) {
 const NAV_ITEMS = [
   { id: 'dashboard',      icon: '⬡',  label: 'Dashboard' },
   { id: 'candidates',     icon: '👤', label: 'Applications' },
-  { id: 'future-cohorts', icon: '🎓', label: 'Future Cohorts' },
   { id: 'schedule',       icon: '📅', label: 'Interview Schedule' },
+  { id: 'future-cohorts', icon: '🎓', label: 'Future Cohort' },
   { id: 'export',         icon: '⬇',  label: 'Export' },
-  { id: 'settings',       icon: '⚙',  label: 'Settings' },
 ];
 
 const PAGE_TITLES = {
   dashboard:          'Dashboard',
   candidates:         'Applications',
   'candidate-detail': 'Candidate Profile',
-  'future-cohorts':   'Future Cohorts',
   schedule:           'Interview Schedule',
+  'future-cohorts':   'Future Cohort',
   export:             'Export',
   settings:           'Settings',
 };
@@ -102,6 +136,7 @@ function AppShell({ currentUser, onLogout }) {
               <div className="sidebar-user-role">Committee</div>
             </div>
             <button className="sidebar-logout" onClick={onLogout} title="Sign out">⏏</button>
+            <button className="sidebar-logout" onClick={() => navigate('settings')} title="Settings" style={{marginLeft:2}}>⚙</button>
           </div>
         </div>
       </aside>
@@ -151,10 +186,10 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
-  if (currentUser === "alumni@xhec.fr") {
+  if (currentUser.endsWith('@alumni.hec.edu')) {
     return (
       <AppStateProvider>
-        <AlumniPortalPage onLogout={handleLogout} />
+        <AlumniPortalPage onLogout={handleLogout} alumniEmail={currentUser} />
       </AppStateProvider>
     );
   }
