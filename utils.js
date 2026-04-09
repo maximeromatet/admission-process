@@ -56,7 +56,7 @@ window.Utils = (() => {
   // ── Date helpers ───────────────────────────────────────────
   function calcAge(dob) {
     if (!dob) return '—';
-    const today = new Date('2026-03-29');
+    const today = new Date();
     const birth = new Date(dob);
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
@@ -118,10 +118,16 @@ window.Utils = (() => {
   };
 
   // ── Batch status ───────────────────────────────────────────
-  const TODAY = '2026-03-29';
+  const TODAY = new Date().toISOString().slice(0, 10);
 
   function batchStatus(batch) {
-    if (batch.admissionDate < TODAY) return 'Completed';
+    if (batch.admissionDate < TODAY) {
+      // Show 'Confirming Enrollment' for the 14 days following admission results
+      const d = new Date(batch.admissionDate + 'T00:00:00');
+      d.setDate(d.getDate() + 14);
+      const confirmingUntil = d.toISOString().slice(0, 10);
+      return TODAY <= confirmingUntil ? 'Confirming Enrollment' : 'Completed';
+    }
     if (batch.admissibilityDate <= TODAY) return 'Interview Phase';
     if (batch.deadline <= TODAY) return 'Reviewing';
     return 'Open';

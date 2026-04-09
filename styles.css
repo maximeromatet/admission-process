@@ -412,6 +412,7 @@ html, body, #root {
 
 /* Batch status chips */
 .badge-completed    { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.badge-confirming   { background: #fff7ed; color: #d97706; border: 1px solid #fcd34d; }
 .badge-interview    { background: #f5f3ff; color: #7c3aed; border: 1px solid #c4b5fd; }
 .badge-open         { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
 .badge-upcoming     { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }

@@ -2,6 +2,8 @@ const CREDENTIALS = {
   "admin@xhec.fr":                  "xhec2026",
   "z.lechevalier@alumni.hec.edu":   "alumni2026",
   "m.torrez@alumni.hec.edu":        "alumni2026",
+  "guillaume.ledieudeville":        "promotion2027",
+  "bruno.martinaud":       "promotion2027",
 };
 
 function Login({ onLogin }) {

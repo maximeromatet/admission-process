@@ -17,6 +17,12 @@ window.SettingsPage = function() {
   }
 
   function resetDemo() {
+    // Clear localStorage so the reset state becomes the new persisted baseline
+    try { localStorage.removeItem('xhec_app_state_v1'); } catch(e) {}
+    // Also clear per-alumni availability keys
+    (window.ALUMNI_SEED || []).forEach(function(a) {
+      try { localStorage.removeItem('xhec_avail_' + a.id); } catch(e) {}
+    });
     setAppState({
       candidates: window.CANDIDATES_SEED,
       batches: window.BATCHES_SEED,

@@ -42,16 +42,60 @@ function loadAlumniAvail() {
   return seedEntries.concat(fromStorage);
 }
 
+// ── LocalStorage persistence ──────────────────────────────────
+const LS_KEY = 'xhec_app_state_v1';
+
+function loadPersistedState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.candidates) && Array.isArray(parsed.batches)) {
+        return parsed;
+      }
+    }
+  } catch(e) {}
+  return null;
+}
+
+function persistState(state) {
+  try {
+    // Strip blob: URLs — they're memory-only and cannot survive a page refresh
+    const sanitized = {
+      ...state,
+      candidates: state.candidates.map(function(c) {
+        return (c.pdfUrl && c.pdfUrl.startsWith('blob:'))
+          ? { ...c, pdfUrl: null }
+          : c;
+      }),
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(sanitized));
+  } catch(e) {}
+}
+
 function AppStateProvider({ children }) {
-  const [state, setState] = useState({
-    candidates: window.CANDIDATES_SEED,
-    batches: window.BATCHES_SEED,
-    users: window.COMMITTEE_USERS_SEED,
-    alumni: window.ALUMNI_SEED,
-    alumniAvail: loadAlumniAvail(),
-    interviews: window.INTERVIEWS_SEED,
-    settings: window.SETTINGS_SEED,
+  const [state, setStateRaw] = useState(function() {
+    const persisted = loadPersistedState();
+    if (persisted) return persisted;
+    return {
+      candidates: window.CANDIDATES_SEED,
+      batches: window.BATCHES_SEED,
+      users: window.COMMITTEE_USERS_SEED,
+      alumni: window.ALUMNI_SEED,
+      alumniAvail: loadAlumniAvail(),
+      interviews: window.INTERVIEWS_SEED,
+      settings: window.SETTINGS_SEED,
+    };
   });
+
+  // Wrap setState so every update is automatically saved to localStorage
+  function setState(updater) {
+    setStateRaw(function(prev) {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      persistState(next);
+      return next;
+    });
+  }
 
   return (
     <AppStateContext.Provider value={[state, setState]}>
@@ -151,7 +195,9 @@ function AppShell({ currentUser, onLogout }) {
             })()}
           </div>
           <div className="top-bar-right">
-            <span style={{fontSize:12, color:'var(--text-light)'}}>Today · 1 Apr 2026</span>
+            <span style={{fontSize:12, color:'var(--text-light)'}}>
+              Today · {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
             <button onClick={onLogout} style={{
               background:"none", border:"1.5px solid #d0dbe8", borderRadius:6,
               padding:"5px 14px", fontSize:13, color:"#003a70", cursor:"pointer",

@@ -23,8 +23,10 @@ window.StatusBadge = function({ status }) {
 
 window.BatchStatusChip = function({ status }) {
   const cls = status === 'Completed' ? 'completed'
+    : status === 'Confirming Enrollment' ? 'confirming'
     : status === 'Interview Phase' ? 'interview'
     : status === 'Open' ? 'open'
+    : status === 'Reviewing' ? 's2_review'
     : 'upcoming';
   return <span className={"badge badge-" + cls}>{status}</span>;
 };
