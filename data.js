@@ -86,10 +86,10 @@ window.INTERVIEWS_SEED = [
   {
     id: 'i1', candidateId: 'c1', batchId: 'r1',
     date: '2026-01-30', time: '10:00',
-    chairId: 'u1', alumniIds: ['a1', 'a2'],
+    chairId: 'u1', alumniIds: [],
     zoomLink: 'https://zoom.us/j/111222333',
     status: 'Completed',
-    notes: 'Motivated and personable. Clear entrepreneurial drive. Two concrete projects already in progress. Conviction is there — project maturity is the only question mark.',
+    notes: 'Motivation, résilience, passion et mentalité entrepreneuriales, valeurs alignées, désir de créer de l\'impact.',
   },
 ];
 
