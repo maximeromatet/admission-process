@@ -16,10 +16,13 @@ window.SchedulePage = function({ navigate }) {
   });
 
   const batch = batches.find(b => b.id === batchFilter);
-  const interviewDays = batch ? Utils.interviewWindow(batch) : [];
+  // When "All Rounds" is selected, merge every batch's interview window for the modal date picker
+  const interviewDays = batch
+    ? Utils.interviewWindow(batch)
+    : [...new Set(batches.filter(b => !b.archived).flatMap(b => Utils.interviewWindow(b)))].sort();
 
   const filteredInterviews = useMemo(() =>
-    interviews.filter(i => i.batchId === batchFilter),
+    batchFilter ? interviews.filter(i => i.batchId === batchFilter) : interviews,
     [interviews, batchFilter]
   );
 
@@ -52,19 +55,21 @@ window.SchedulePage = function({ navigate }) {
 
   function saveInterview() {
     const cand = getCand(form.candidateId);
+    // When "All Rounds" is active, derive batchId from the candidate rather than the filter
+    const resolvedBatchId = batchFilter || (cand ? cand.batchId : '');
     // Update existing placeholder if one exists, else add new
     const existing = interviews.find(i => i.candidateId === form.candidateId && i.status === 'To Schedule');
     if (existing) {
       setAppState(prev => ({
         ...prev,
         interviews: prev.interviews.map(i => i.id === existing.id
-          ? { ...i, ...form, batchId: batchFilter, status: 'Scheduled' }
+          ? { ...i, ...form, batchId: resolvedBatchId, status: 'Scheduled' }
           : i
         ),
       }));
     } else {
       const id = 'i' + Date.now();
-      setAppState(prev => ({ ...prev, interviews: [...prev.interviews, { ...form, id, batchId: batchFilter, status: 'Scheduled' }] }));
+      setAppState(prev => ({ ...prev, interviews: [...prev.interviews, { ...form, id, batchId: resolvedBatchId, status: 'Scheduled' }] }));
     }
     if (cand) {
       setAppState(prev => ({
@@ -84,7 +89,7 @@ window.SchedulePage = function({ navigate }) {
   }
 
   const invitedCands = candidates.filter(c =>
-    c.batchId === batchFilter && c.status === 'interview'
+    (batchFilter ? c.batchId === batchFilter : true) && c.status === 'interview'
   );
 
   const statusColor = s => s === 'Completed' ? '#16a34a' : s === 'No-show' ? '#be123c' : '#2563eb';
