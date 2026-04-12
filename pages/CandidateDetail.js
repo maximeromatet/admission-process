@@ -428,7 +428,7 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
             disabled={!S1_DONE}
           >
             {S1_DONE
-              ? '✓ Submit & Go Back to Review Queue'
+              ? '✓ Submit'
               : 'Score all 5 criteria to submit (' + Object.keys(s1Scores).filter(k => s1Scores[k] !== undefined).length + '/5)'}
           </button>
         </div>
@@ -503,7 +503,7 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
               disabled={!S2_DONE}
             >
               {S2_DONE
-                ? '✓ Submit & Go Back to Interview Queue'
+                ? '✓ Submit'
                 : 'Score all 5 criteria to submit (' + Object.keys(s2Scores).filter(k => s2Scores[k] !== undefined).length + '/5)'}
             </button>
           </div>

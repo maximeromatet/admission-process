@@ -92,6 +92,12 @@ window.SchedulePage = function({ navigate }) {
     (batchFilter ? c.batchId === batchFilter : true) && c.status === 'interview'
   );
 
+  // Date picker in the modal always uses the selected candidate's own batch window,
+  // regardless of which round filter is active in the agenda view.
+  const modalCand = getCand(form.candidateId);
+  const modalBatch = modalCand ? batches.find(b => b.id === modalCand.batchId) : null;
+  const modalInterviewDays = modalBatch ? Utils.interviewWindow(modalBatch) : interviewDays;
+
   const statusColor = s => s === 'Completed' ? '#16a34a' : s === 'No-show' ? '#be123c' : '#2563eb';
 
   // Alumni availability grid data
@@ -327,7 +333,7 @@ window.SchedulePage = function({ navigate }) {
             <select
               className="form-control"
               value={form.candidateId}
-              onChange={e => setForm(prev => ({ ...prev, candidateId: e.target.value }))}
+              onChange={e => setForm(prev => ({ ...prev, candidateId: e.target.value, date: '', alumniIds: [] }))}
             >
               <option value="">Select candidate…</option>
               {invitedCands.map(c => (
@@ -354,7 +360,7 @@ window.SchedulePage = function({ navigate }) {
               onChange={e => setForm(prev => ({ ...prev, date: e.target.value, alumniIds: [] }))}
             >
               <option value="">Select date…</option>
-              {interviewDays.map(d => <option key={d} value={d}>{Utils.dayLabel(d)}</option>)}
+              {modalInterviewDays.map(d => <option key={d} value={d}>{Utils.dayLabel(d)}</option>)}
             </select>
           </div>
           <div className="form-group">

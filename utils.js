@@ -77,15 +77,23 @@ window.Utils = (() => {
       ' ' + dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
 
-  // Working days Mon-Fri in a date range
+  // Returns 'YYYY-MM-DD' in LOCAL time — avoids UTC drift for European timezones
+  function localDateStr(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + dd;
+  }
+
+  // Working days Mon-Fri in a date range (uses noon to avoid DST/TZ shifts)
   function getWorkingDays(startDate, endDate) {
     const days = [];
-    const cur = new Date(startDate + 'T00:00:00');
-    const end = new Date(endDate + 'T00:00:00');
+    const cur = new Date(startDate + 'T12:00:00');
+    const end = new Date(endDate + 'T12:00:00');
     while (cur <= end) {
       const dow = cur.getDay();
       if (dow >= 1 && dow <= 5) {
-        days.push(cur.toISOString().slice(0, 10));
+        days.push(localDateStr(cur));
       }
       cur.setDate(cur.getDate() + 1);
     }
@@ -118,14 +126,14 @@ window.Utils = (() => {
   };
 
   // ── Batch status ───────────────────────────────────────────
-  const TODAY = new Date().toISOString().slice(0, 10);
+  const TODAY = localDateStr(new Date());
 
   function batchStatus(batch) {
     if (batch.admissionDate < TODAY) {
       // Show 'Confirming Enrollment' for the 14 days following admission results
-      const d = new Date(batch.admissionDate + 'T00:00:00');
+      const d = new Date(batch.admissionDate + 'T12:00:00');
       d.setDate(d.getDate() + 14);
-      const confirmingUntil = d.toISOString().slice(0, 10);
+      const confirmingUntil = localDateStr(d);
       return TODAY <= confirmingUntil ? 'Confirming Enrollment' : 'Completed';
     }
     if (batch.admissibilityDate <= TODAY) return 'Interview Phase';
@@ -168,15 +176,18 @@ window.Utils = (() => {
   }
 
   // ── Interview window for a batch ───────────────────────────
+  // Rule: Mon–Fri of the week immediately following the admissibility date.
+  // e.g. admissibility on Thu 11 Jun → interviews Mon 15 Jun – Fri 19 Jun.
   function interviewWindow(batch) {
-    // 2 weeks after admissibility results, working days
-    const start = new Date(batch.admissibilityDate + 'T00:00:00');
-    start.setDate(start.getDate() + 1);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 13);
-    const startStr = start.toISOString().slice(0, 10);
-    const endStr = end.toISOString().slice(0, 10);
-    return getWorkingDays(startStr, endStr);
+    const adm = new Date(batch.admissibilityDate + 'T12:00:00');
+    const dow = adm.getDay(); // 0=Sun, 1=Mon … 6=Sat
+    // Days until the next Monday.
+    // If admissibility falls on Monday itself, jump to the following Monday (+7).
+    const toMonday = dow === 0 ? 1 : (8 - dow) % 7 || 7;
+    adm.setDate(adm.getDate() + toMonday);          // adm is now Monday
+    const friday = new Date(adm);
+    friday.setDate(friday.getDate() + 4);            // Friday of same week
+    return getWorkingDays(localDateStr(adm), localDateStr(friday));
   }
 
   // ── Quota tracker ──────────────────────────────────────────
