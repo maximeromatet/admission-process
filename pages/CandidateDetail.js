@@ -17,6 +17,7 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
   const [savedFlash, setSavedFlash] = useState('');
   const [showLog, setShowLog]       = useState(false);
   const [statusOverride, setStatusOverride] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pdfUrl, setPdfUrl]   = useState(c ? (c.pdfUrl || null) : null);
   const [pdfName, setPdfName] = useState(c && c.pdfUrl ? 'Application PDF' : '');
   const [editProfile, setEditProfile] = useState(false);
@@ -138,6 +139,15 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
     addLog('Interview submitted (avg ' + (s2Avg||0).toFixed(1) + ') → ' + nextStatus);
     // Redirect to interview queue after submit
     navigate('candidates', { tabFilter: 'interview' });
+  }
+
+  function handleDelete() {
+    setAppState(prev => ({
+      ...prev,
+      candidates: prev.candidates.filter(x => x.id !== c.id),
+      interviews: prev.interviews.filter(i => i.candidateId !== c.id),
+    }));
+    navigate('candidates');
   }
 
   function handleStatusOverride() {
@@ -625,6 +635,16 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
             <button className="btn btn-outline btn-sm" onClick={handleStatusOverride} disabled={!statusOverride}>Apply</button>
           </>
         )}
+        <button
+          className="btn btn-sm"
+          onClick={() => setShowDeleteConfirm(true)}
+          style={{
+            background:'#fff1f2', color:'#be123c',
+            border:'1.5px solid #fecdd3', marginLeft:4,
+          }}
+        >
+          🗑 Delete
+        </button>
       </div>
 
       {showLog && (
@@ -640,6 +660,15 @@ window.CandidateDetailPage = function({ candidateId, mode: modeProp, navigate })
           {rightPanel}
         </div>
       </div>
+
+      <ConfirmModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title={"Delete " + c.name + "?"}
+        message={"This will permanently remove " + c.name + "'s profile, scores, notes, and any associated interviews. This action cannot be undone."}
+        danger
+      />
     </div>
   );
 };

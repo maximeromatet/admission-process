@@ -194,10 +194,11 @@ window.Utils = (() => {
   }
 
   // ── Time slot suggestions ──────────────────────────────────
+  // 30-minute slots (25 min interview + 5 min break), starting at 09:00
   function getTimeSlots() {
     const slots = [];
-    for (let h = 8; h <= 17; h++) {
-      for (let m = 0; m < 60; m += 25) {
+    for (let h = 9; h <= 17; h++) {
+      for (let m = 0; m < 60; m += 30) {
         if (h === 17 && m > 0) break;
         const hh = String(h).padStart(2, '0');
         const mm = String(m).padStart(2, '0');
