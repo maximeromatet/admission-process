@@ -8,7 +8,19 @@ window.SchedulePage = function({ navigate }) {
   const { candidates, batches, users, alumni, alumniAvail, interviews } = appState;
 
   const [activeTab, setActiveTab] = useState('agenda');
-  const [batchFilter, setBatchFilter] = useState('');
+
+  // Auto-select the current active round (Reviewing or Interview Phase).
+  // Falls back to '' (All Rounds) if nothing is active.
+  const defaultBatch = (function() {
+    const priority = ['Interview Phase', 'Reviewing', 'Open'];
+    for (const status of priority) {
+      const b = batches.find(b => !b.archived && Utils.batchStatus(b) === status);
+      if (b) return b.id;
+    }
+    return '';
+  })();
+
+  const [batchFilter, setBatchFilter] = useState(defaultBatch);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     candidateId: '', date: '', time: '09:00',
@@ -92,11 +104,12 @@ window.SchedulePage = function({ navigate }) {
     (batchFilter ? c.batchId === batchFilter : true) && c.status === 'interview'
   );
 
-  // Date picker in the modal always uses the selected candidate's own batch window,
-  // regardless of which round filter is active in the agenda view.
+  // Date picker in the modal: ONLY shows the Mon–Fri interview week
+  // for the selected candidate's own batch (week after that batch's admissibility date).
+  // If no candidate is selected, the date list is empty — the user must pick a candidate first.
   const modalCand = getCand(form.candidateId);
   const modalBatch = modalCand ? batches.find(b => b.id === modalCand.batchId) : null;
-  const modalInterviewDays = modalBatch ? Utils.interviewWindow(modalBatch) : interviewDays;
+  const modalInterviewDays = modalBatch ? Utils.interviewWindow(modalBatch) : [];
 
   const statusColor = s => s === 'Completed' ? '#16a34a' : s === 'No-show' ? '#be123c' : '#2563eb';
 
@@ -116,7 +129,7 @@ window.SchedulePage = function({ navigate }) {
 
       {activeTab === 'agenda' && (
         <div>
-          <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:18}}>
+          <div style={{display:'flex', alignItems:'center', gap:12, marginBottom: batch ? 8 : 18}}>
             <select
               className="form-control"
               style={{width:'auto'}}
@@ -135,6 +148,21 @@ window.SchedulePage = function({ navigate }) {
               </button>
             </div>
           </div>
+
+          {/* Per-round interview window banner */}
+          {batch && interviewDays.length > 0 && (
+            <div style={{
+              background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:6,
+              padding:'7px 14px', marginBottom:16, fontSize:12,
+              display:'flex', alignItems:'center', gap:8, color:'#1e40af',
+            }}>
+              <span style={{fontWeight:700}}>📅 {batch.name} interview week:</span>
+              <span>{Utils.dayLabel(interviewDays[0])} → {Utils.dayLabel(interviewDays[interviewDays.length - 1])}</span>
+              <span style={{color:'#60a5fa', marginLeft:4}}>
+                (admissibility: {Utils.fmtDate(batch.admissibilityDate)})
+              </span>
+            </div>
+          )}
 
           {toSchedule.length === 0 && allDates.length === 0 ? (
             <div className="card">
@@ -238,14 +266,22 @@ window.SchedulePage = function({ navigate }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">Alumni Availability Grid</span>
-            <select
-              className="form-control"
-              style={{width:'auto'}}
-              value={batchFilter}
-              onChange={e => setBatchFilter(e.target.value)}
-            >
-              {batches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
+            <div style={{display:'flex', alignItems:'center', gap:10}}>
+              {batch && interviewDays.length > 0 && (
+                <span style={{fontSize:11, color:'var(--blue)', fontWeight:600}}>
+                  Interview week: {Utils.dayLabel(interviewDays[0])} → {Utils.dayLabel(interviewDays[interviewDays.length - 1])}
+                </span>
+              )}
+              <select
+                className="form-control"
+                style={{width:'auto'}}
+                value={batchFilter}
+                onChange={e => setBatchFilter(e.target.value)}
+              >
+                <option value="">All Rounds</option>
+                {batches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
           </div>
           <div className="card-body">
             {interviewDays.length === 0 ? (
@@ -354,13 +390,38 @@ window.SchedulePage = function({ navigate }) {
           </div>
           <div className="form-group">
             <label className="form-label">Date *</label>
+
+            {/* Interview week info — only shown once a candidate is selected */}
+            {modalBatch && modalInterviewDays.length > 0 && (
+              <div style={{
+                background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:6,
+                padding:'6px 12px', marginBottom:6, fontSize:12, color:'#1e40af',
+                display:'flex', gap:6, alignItems:'center',
+              }}>
+                <span>📅</span>
+                <span>
+                  <strong>{modalBatch.name}</strong> interview week:{' '}
+                  <strong>{Utils.dayLabel(modalInterviewDays[0])}</strong> → <strong>{Utils.dayLabel(modalInterviewDays[modalInterviewDays.length - 1])}</strong>
+                  <span style={{color:'#93c5fd', marginLeft:8, fontWeight:400}}>
+                    (admissibility: {Utils.fmtDate(modalBatch.admissibilityDate)})
+                  </span>
+                </span>
+              </div>
+            )}
+
             <select
               className="form-control"
               value={form.date}
               onChange={e => setForm(prev => ({ ...prev, date: e.target.value, alumniIds: [] }))}
+              disabled={!form.candidateId}
             >
-              <option value="">Select date…</option>
-              {modalInterviewDays.map(d => <option key={d} value={d}>{Utils.dayLabel(d)}</option>)}
+              {!form.candidateId
+                ? <option value="">← Select a candidate first</option>
+                : <>
+                    <option value="">Select date…</option>
+                    {modalInterviewDays.map(d => <option key={d} value={d}>{Utils.dayLabel(d)}</option>)}
+                  </>
+              }
             </select>
           </div>
           <div className="form-group">
