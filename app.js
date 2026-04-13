@@ -50,7 +50,7 @@ function loadPersistedState() {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.candidates) && Array.isArray(parsed.batches)) {
+      if (parsed && Array.isArray(parsed.candidates)) {
         return parsed;
       }
     }
@@ -60,14 +60,17 @@ function loadPersistedState() {
 
 function persistState(state) {
   try {
-    // Strip blob: URLs — they're memory-only and cannot survive a page refresh
+    // Strip blob: URLs — they're memory-only and cannot survive a page refresh.
+    // Batches and users are NOT persisted — they always load fresh from the seed
+    // so that date changes in data.js take effect immediately without clearing localStorage.
     const sanitized = {
-      ...state,
       candidates: state.candidates.map(function(c) {
         return (c.pdfUrl && c.pdfUrl.startsWith('blob:'))
           ? { ...c, pdfUrl: null }
           : c;
       }),
+      interviews: state.interviews,
+      settings:   state.settings,
     };
     localStorage.setItem(LS_KEY, JSON.stringify(sanitized));
   } catch(e) {}
@@ -76,15 +79,16 @@ function persistState(state) {
 function AppStateProvider({ children }) {
   const [state, setStateRaw] = useState(function() {
     const persisted = loadPersistedState();
-    if (persisted) return persisted;
+    // Batches and users always come from seed — never from localStorage —
+    // so that any correction to data.js is reflected immediately.
     return {
-      candidates: window.CANDIDATES_SEED,
-      batches: window.BATCHES_SEED,
-      users: window.COMMITTEE_USERS_SEED,
-      alumni: window.ALUMNI_SEED,
+      candidates: persisted ? persisted.candidates : window.CANDIDATES_SEED,
+      batches:    window.BATCHES_SEED,
+      users:      window.COMMITTEE_USERS_SEED,
+      alumni:     window.ALUMNI_SEED,
       alumniAvail: loadAlumniAvail(),
-      interviews: window.INTERVIEWS_SEED,
-      settings: window.SETTINGS_SEED,
+      interviews: persisted ? persisted.interviews : window.INTERVIEWS_SEED,
+      settings:   persisted ? persisted.settings   : window.SETTINGS_SEED,
     };
   });
 
