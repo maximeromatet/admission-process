@@ -3,6 +3,7 @@ const CREDENTIALS = {
   "zoe.lechevalier":   "alumni2027",
   "guillaume.ledieudeville":        "promotion2027",
   "bruno.martinaud":       "promotion2027",
+  "mathias.bejean":        "promotion2027"
 };
 
 function Login({ onLogin }) {

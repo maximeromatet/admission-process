@@ -63,7 +63,7 @@ window.BATCHES_SEED = [
 window.COMMITTEE_USERS_SEED = [
   { id: 'u1', name: 'Etienne Krieger',           email: 'etienne.krieger',            role: 'Professor',          initials: 'EK' },
   { id: 'u2', name: 'Guillaume Le Dieu de Ville', email: 'guillaume.ledieu',             role: 'Academic Director',  initials: 'GL' },
-  { id: 'u3', name: 'Bruno Martinaud',            email: 'b.martinaud@',          role: 'Academic Director',  initials: 'BM' },
+  { id: 'u3', name: 'Bruno Martinaud',            email: 'bruno.martinaud@polytechnique.edu',          role: 'Academic Director',  initials: 'BM' },
   { id: 'u4', name: 'Zoé Lechevalier',            email: 'z.lechevalier@alumni.hec.edu', role: 'Alumni',             initials: 'ZL' },
   { id: 'u5', name: 'Miguel Torrez',              email: 'm.torrez@alumni.hec.edu',      role: 'Alumni',             initials: 'MT' },
 ];
